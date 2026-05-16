@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspberry pi Server</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dark">
+<div class="container">
+    <h1>Raspberry pi Server</h1>
+    <p><strong>Time:</strong> {{ now }}</p>
+    <p><strong>Operating System:</strong> {{ os_info }}</p>
+    <p><strong>CPU:</strong> {{ cpu }}%</p>
+    <p><strong>RAM:</strong> {{ ram }}%</p>
+
+    <div class="buttons">
+        <a href="/info" class="btn">More Info</a>
+        <a href="/terminal" class="btn">Terminal</a>
+        <a href="/files" class="btn">Files</a>
+        <a href="/restart" class="btn danger">Restart Server</a>
+    </div>
+</div>
+</body>
+</html>
