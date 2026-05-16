@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal View</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dark">
+<div class="container">
+    <h1>Terminal View</h1>
+    <p><strong>Base directory:</strong> {{ base_dir }}</p>
+
+    <h3>ls -lah</h3>
+    <pre class="terminal">{{ ls_output }}</pre>
+
+    <h3>Tree (depth 3)</h3>
+    <pre class="terminal">{{ tree_output }}</pre>
+
+    <a href="/" class="btn">Back</a>
+</div>
+</body>
+</html>
