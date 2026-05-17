@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Edit User: {{ user.username }}</h1>
+
+<form method="post">
+
+    <label>Username</label>
+    <input type="text" name="username" value="{{ user.username }}" required>
+
+    <label>Password</label>
+    <input type="text" name="password" placeholder="Leave empty to keep old">
+
+    <label>Base Directory</label>
+    <input type="text" name="base_dir" value="{{ user.base_dir }}" required>
+
+    <label><input type="checkbox" name="is_admin" {% if user.is_admin %}checked{% endif %}> Admin</label><br>
+    <label><input type="checkbox" name="can_terminal" {% if user.can_terminal %}checked{% endif %}> Terminal</label><br>
+    <label><input type="checkbox" name="can_restart" {% if user.can_restart %}checked{% endif %}> Restart</label><br>
+    <label><input type="checkbox" name="can_info" {% if user.can_info %}checked{% endif %}> Info</label><br>
+
+    <button class="btn">Save</button>
+</form>
+
+<a class="btn-secondary" href="/admin">Back</a>
+
+</body>
+</html>

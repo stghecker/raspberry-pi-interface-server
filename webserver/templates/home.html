@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Welcome, {{ user.username }}</h1>
+
+<!-- FILE MANAGER -->
+<a class="btn" href="/files/">File Manager</a>
+
+<!-- TERMINAL -->
+{% if user.can_terminal %}
+<a class="btn" href="/terminal">Terminal</a>
+{% endif %}
+
+<!-- INFO -->
+{% if user.can_info %}
+<a class="btn" href="/info">Info</a>
+{% endif %}
+
+<!-- RESTART -->
+{% if user.can_restart %}
+<form method="post" action="/restart-server" style="display:inline;">
+    <button class="btn-danger">Restart Server</button>
+</form>
+{% endif %}
+
+<!-- EDIT PROFILE -->
+<a class="btn-secondary" href="/profile/edit">Edit Profile</a>
+
+<!-- ADMIN PANEL -->
+{% if user.is_admin %}
+<a class="btn-secondary" href="/admin">Admin Panel</a>
+{% endif %}
+
+<!-- LOGOUT -->
+<a class="btn-secondary" href="/logout">Logout</a>
+
+</body>
+</html>

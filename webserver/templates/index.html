@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hecker_pc Dashboard server</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Hecker_pc Dashboard server</h1>
+
+    <div class="info">
+        <p><strong>Ώρα:</strong> {{ now }}</p>
+        <p><strong>Λειτουργικό:</strong> {{ os_info }}</p>
+        <p><strong>CPU:</strong> {{ cpu }}%</p>
+        <p><strong>RAM:</strong> {{ ram }}%</p>
+    </div>
+
+    <hr>
+
+    <h2>File Manager</h2>
+
+    <div class="path">
+        <strong>Τρέχων φάκελος:</strong>
+        /{{ subpath }}
+        {% if parent != "" or subpath != "" %}
+            - <a href="{{ url_for('browse', subpath=parent) }}">⬆ Πίσω</a>
+        {% endif %}
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Όνομα</th>
+            <th>Τύπος</th>
+            <th>Μέγεθος</th>
+            <th>Ενέργειες</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for e in entries %}
+            <tr>
+                <td>
+                    {% if e.is_dir %}
+                        <a href="{{ url_for('browse', subpath=(subpath + '/' + e.name).strip('/') ) }}">
+                            📁 {{ e.name }}
+                        </a>
+                    {% else %}
+                        📄 {{ e.name }}
+                    {% endif %}
+                </td>
+                <td>{{ "Φάκελος" if e.is_dir else "Αρχείο" }}</td>
+                <td>
+                    {% if not e.is_dir and e.size is not none %}
+                        {{ (e.size / 1024)|round(1) }} KB
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not e.is_dir %}
+                        <a href="{{ url_for('download', subpath=(subpath + '/' + e.name).strip('/') ) }}">⬇ Download</a>
+                        |
+                        <a href="{{ url_for('delete', subpath=(subpath + '/' + e.name).strip('/') ) }}"
+                           onclick="return confirm('Σίγουρα διαγραφή;');">🗑 Delete</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Upload αρχείου</h3>
+    <form action="{{ url_for('upload', subpath=subpath) }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+</div>
+</body>
+</html>
