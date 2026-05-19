@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Info</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/info.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/home" class="home-icon" title="Home">🏠</a>
+  </div>
+
+  <div class="topbar-center">
+    <span class="server-title">Raspberry Pi Server</span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="dropdown user-menu">
+      <button class="top-btn">User ▾</button>
+      <div class="dropdown-content">
+        <a href="/logout">Logout</a>
+        <a href="/switch-user">Switch User</a>
+      </div>
+    </div>
+
+    <div class="dropdown power-menu">
+      <button class="top-btn">⚙ Power ▾</button>
+      <div class="dropdown-content">
+        <a href="/shutdown-pi">Shutdown Raspberry Pi</a>
+        <a href="/restart-pi">Restart Raspberry Pi</a>
+        <a href="/shutdown-server">Shutdown Server</a>
+        <a href="/restart-server">Restart Server</a>
+      </div>
+    </div>
+  </div>
+</div>
+<body class="dark">
+
+<div class="info-container">
+    <h1>System Dashboard</h1>
+
+    <div class="tabs">
+        <button class="tab-button active" data-tab="performance">Performance</button>
+        <button class="tab-button" data-tab="network">Network</button>
+        <button class="tab-button" data-tab="processes">Processes</button>
+        <button class="tab-button" data-tab="logs">Logs</button>
+        <button class="tab-button" data-tab="services">Services</button>
+        <a href="/" class="btn-secondary tab-back">Back</a>
+    </div>
+
+    <div class="tab-content active" id="tab-performance">
+        <div class="info-grid">
+            <div class="charts-column">
+                <div class="card">
+                    <h2>CPU Usage</h2>
+                    <canvas id="cpuChart"></canvas>
+                </div>
+
+                <div class="card">
+                    <h2>RAM Usage</h2>
+                    <canvas id="ramChart"></canvas>
+                </div>
+
+                <div class="card">
+                    <h2>Disk Usage</h2>
+                    <canvas id="diskChart"></canvas>
+                </div>
+            </div>
+
+            <div class="details-column">
+                <div class="card">
+                    <h2>System Details</h2>
+                    <p><strong>OS:</strong> <span id="osName">-</span> <span id="osVersion"></span></p>
+                    <p><strong>CPU Cores:</strong> <span id="cpuCores">-</span></p>
+                    <p><strong>Uptime:</strong> <span id="uptime">-</span></p>
+                    <p><strong>CPU Temp:</strong> <span id="cpuTemp">-</span></p>
+                    <p><strong>GPU Temp:</strong> <span id="gpuTemp">-</span></p>
+                    <p><strong>Fan Speed:</strong> <span id="fanSpeed">-</span></p>
+                    <p><strong>RAM:</strong> <span id="ramText">-</span></p>
+                    <p><strong>Disk:</strong> <span id="diskText">-</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-network">
+        <div class="card">
+            <h2>Network Speed</h2>
+            <canvas id="netChart"></canvas>
+            <p class="net-legend">
+                <span class="up">Upload</span> • <span class="down">Download</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-processes">
+        <div class="card">
+            <h2>Top Processes</h2>
+            <table class="proc-table">
+                <thead>
+                    <tr>
+                        <th>PID</th>
+                        <th>Name</th>
+                        <th>CPU %</th>
+                        <th>RAM %</th>
+                    </tr>
+                </thead>
+                <tbody id="procBody">
+                    <tr><td colspan="4">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-logs">
+        <div class="card">
+            <h2>System Logs (last 100 lines)</h2>
+            <pre id="logsBox" class="logs-box">Loading...</pre>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-services">
+        <div class="card">
+            <h2>Services</h2>
+            <table class="svc-table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="svcBody">
+                    <tr><td colspan="3">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+const ramCtx = document.getElementById('ramChart').getContext('2d');
+const diskCtx = document.getElementById('diskChart').getContext('2d');
+const netCtx = document.getElementById('netChart').getContext('2d');
+
+const chartOptions = {
+    responsive: true,
+    plugins: {
+        legend: { labels: { color: '#fff' } },
+    },
+    scales: {
+        x: { ticks: { color: '#aaa' }, grid: { color: '#333' } },
+        y: { ticks: { color: '#aaa' }, grid: { color: '#333' }, min: 0, max: 100 }
+    }
+};
+
+const cpuData = {
+    labels: Array(30).fill(""),
+    datasets: [{
+        label: 'CPU %',
+        data: Array(30).fill(0),
+        borderColor: '#4caf50',
+        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+        tension: 0.3
+    }]
+};
+
+const ramData = {
+    labels: Array(30).fill(""),
+    datasets: [{
+        label: 'RAM %',
+        data: Array(30).fill(0),
+        borderColor: '#2196f3',
+        backgroundColor: 'rgba(33, 150, 243, 0.2)',
+        tension: 0.3
+    }]
+};
+
+const diskData = {
+    labels: ['Used', 'Free'],
+    datasets: [{
+        data: [0, 100],
+        backgroundColor: ['#ff9800', '#555']
+    }]
+};
+
+const netData = {
+    labels: Array(30).fill(""),
+    datasets: [
+        {
+            label: 'Upload (KB/s)',
+            data: Array(30).fill(0),
+            borderColor: '#ff5722',
+            backgroundColor: 'rgba(255, 87, 34, 0.2)',
+            tension: 0.3
+        },
+        {
+            label: 'Download (KB/s)',
+            data: Array(30).fill(0),
+            borderColor: '#00bcd4',
+            backgroundColor: 'rgba(0, 188, 212, 0.2)',
+            tension: 0.3
+        }
+    ]
+};
+
+const cpuChart = new Chart(cpuCtx, {
+    type: 'line',
+    data: cpuData,
+    options: chartOptions
+});
+
+const ramChart = new Chart(ramCtx, {
+    type: 'line',
+    data: ramData,
+    options: chartOptions
+});
+
+const diskChart = new Chart(diskCtx, {
+    type: 'doughnut',
+    data: diskData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { labels: { color: '#fff' } }
+        }
+    }
+});
+
+const netChart = new Chart(netCtx, {
+    type: 'line',
+    data: netData,
+    options: chartOptions
+});
+
+function bytesToGB(bytes) {
+    return (bytes / (1024 ** 3)).toFixed(1);
+}
+
+function bpsToKBps(bps) {
+    return (bps / 1024).toFixed(1);
+}
+
+async function fetchInfo() {
+    try {
+        const res = await fetch('/info/data');
+        const data = await res.json();
+
+        // Text
+        document.getElementById('osName').textContent = data.os_name;
+        document.getElementById('osVersion').textContent = data.os_version;
+        document.getElementById('cpuCores').textContent = data.cpu_cores;
+        document.getElementById('uptime').textContent = data.uptime;
+
+        document.getElementById('cpuTemp').textContent =
+            data.cpu_temp !== null ? data.cpu_temp.toFixed(1) + ' °C' : 'N/A';
+        document.getElementById('gpuTemp').textContent =
+            data.gpu_temp !== null ? data.gpu_temp.toFixed(1) + ' °C' : 'N/A';
+        document.getElementById('fanSpeed').textContent =
+            data.fan_speed !== null ? data.fan_speed : 'N/A';
+
+        const ramTotalGB = bytesToGB(data.ram_total);
+        const ramUsedGB = bytesToGB(data.ram_used);
+        document.getElementById('ramText').textContent =
+            `${ramUsedGB} GB / ${ramTotalGB} GB (${data.ram_percent.toFixed(1)}%)`;
+
+        const diskTotalGB = bytesToGB(data.disk_total);
+        const diskUsedGB = bytesToGB(data.disk_used);
+        document.getElementById('diskText').textContent =
+            `${diskUsedGB} GB / ${diskTotalGB} GB (${data.disk_percent.toFixed(1)}%)`;
+
+        // CPU chart
+        cpuData.datasets[0].data.push(data.cpu_percent);
+        cpuData.datasets[0].data.shift();
+        cpuChart.update('none');
+
+        // RAM chart
+        ramData.datasets[0].data.push(data.ram_percent);
+        ramData.datasets[0].data.shift();
+        ramChart.update('none');
+
+        // Disk chart
+        diskData.datasets[0].data = [data.disk_percent, 100 - data.disk_percent];
+        diskChart.update('none');
+
+        // Network chart
+        const upKB = parseFloat(bpsToKBps(data.net_up_bps));
+        const downKB = parseFloat(bpsToKBps(data.net_down_bps));
+        netData.datasets[0].data.push(upKB);
+        netData.datasets[0].data.shift();
+        netData.datasets[1].data.push(downKB);
+        netData.datasets[1].data.shift();
+        netChart.update('none');
+
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function fetchProcesses() {
+    try {
+        const res = await fetch('/info/processes');
+        const data = await res.json();
+        const tbody = document.getElementById('procBody');
+        tbody.innerHTML = '';
+
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="4">No data</td></tr>';
+            return;
+        }
+
+        for (const p of data) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${p.pid}</td>
+                <td>${p.name || '-'}</td>
+                <td>${(p.cpu_percent || 0).toFixed(1)}</td>
+                <td>${(p.memory_percent || 0).toFixed(1)}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function fetchLogs() {
+    try {
+        const res = await fetch('/info/logs');
+        const data = await res.json();
+        document.getElementById('logsBox').textContent = data.logs;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function fetchServices() {
+    try {
+        const res = await fetch('/info/services');
+        const data = await res.json();
+        const tbody = document.getElementById('svcBody');
+        tbody.innerHTML = '';
+
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="3">No services configured</td></tr>';
+            return;
+        }
+
+        for (const s of data) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${s.name}</td>
+                <td class="svc-status ${s.status}">${s.status}</td>
+                <td>
+                    <button class="svc-btn" data-name="${s.name}" data-action="start">Start</button>
+                    <button class="svc-btn" data-name="${s.name}" data-action="stop">Stop</button>
+                    <button class="svc-btn" data-name="${s.name}" data-action="restart">Restart</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        document.querySelectorAll('.svc-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const name = btn.getAttribute('data-name');
+                const action = btn.getAttribute('data-action');
+                btn.disabled = true;
+                btn.textContent = action + '...';
+                try {
+                    const res = await fetch('/info/service_action', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({name, action})
+                    });
+                    const data = await res.json();
+                    if (!data.ok) {
+                        alert('Error: ' + (data.error || 'unknown'));
+                    }
+                    await fetchServices();
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+                }
+            });
+        });
+
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Tabs logic
+document.querySelectorAll('.tab-button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        btn.classList.add('active');
+        const tab = btn.getAttribute('data-tab');
+        document.getElementById('tab-' + tab).classList.add('active');
+    });
+});
+
+// Intervals
+setInterval(fetchInfo, 1000);
+setInterval(fetchProcesses, 3000);
+setInterval(fetchLogs, 5000);
+setInterval(fetchServices, 5000);
+
+// Initial load
+fetchInfo();
+fetchProcesses();
+fetchLogs();
+fetchServices();
+</script>
+
+</body>
+</html>
