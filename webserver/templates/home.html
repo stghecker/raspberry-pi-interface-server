@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/home.html" class="home-icon" title="Home">🏠</a>
+  </div>
+
+  <div class="topbar-center">
+    <span class="server-title">Raspberry Pi Server</span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="dropdown user-menu">
+      <button class="top-btn">User ▾</button>
+      <div class="dropdown-content">
+        <a href="/logout">Logout</a>
+        <a href="/switch-user">Switch User</a>
+      </div>
+    </div>
+
+    <div class="dropdown power-menu">
+      <button class="top-btn">⚙ Power ▾</button>
+      <div class="dropdown-content">
+        <a href="/shutdown-pi">Shutdown Raspberry Pi</a>
+        <a href="/restart-pi">Restart Raspberry Pi</a>
+        <a href="/shutdown-server">Shutdown Server</a>
+        <a href="/restart-server">Restart Server</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Page Title</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<!-- Topbar (πάνω γραμμή) -->
+<div class="topbar">
+  ...
+</div>
+
+<body>
+  <!-- Περιεχόμενο της σελίδας -->
+</body>
+</html>
+<body>
+
+<h1>Welcome, {{ user.username }}</h1>
+
+<!-- FILE MANAGER -->
+<a class="btn" href="/files/">File Manager</a>
+
+<!-- TERMINAL -->
+{% if user.can_terminal %}
+<a class="btn" href="/terminal">Terminal</a>
+{% endif %}
+
+<!-- INFO -->
+{% if user.can_info %}
+<a class="btn" href="/info">Info</a>
+{% endif %}
+
+<!-- RESTART -->
+{% if user.can_restart %}
+<form method="post" action="/restart-server" style="display:inline;">
+    <button class="btn-danger">Reload Server</button>
+</form>
+{% endif %}
+
+<!-- EDIT PROFILE -->
+<a class="btn-secondary" href="/profile/edit">Edit Profile</a>
+
+<!-- ADMIN PANEL -->
+{% if user.is_admin %}
+<a class="btn-secondary" href="/admin">Admin Panel</a>
+{% endif %}
+
+<!-- LOGOUT -->
+<a class="btn-secondary" href="/logout">Logout</a>
+
+</body>
+</html>

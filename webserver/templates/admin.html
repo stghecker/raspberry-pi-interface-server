@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/home" class="home-icon" title="Home">🏠</a>
+  </div>
+
+  <div class="topbar-center">
+    <span class="server-title">Raspberry Pi Server</span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="dropdown user-menu">
+      <button class="top-btn">User ▾</button>
+      <div class="dropdown-content">
+        <a href="/logout">Logout</a>
+        <a href="/switch-user">Switch User</a>
+      </div>
+    </div>
+
+    <div class="dropdown power-menu">
+      <button class="top-btn">⚙ Power ▾</button>
+      <div class="dropdown-content">
+        <a href="/shutdown-pi">Shutdown Raspberry Pi</a>
+        <a href="/restart-pi">Restart Raspberry Pi</a>
+        <a href="/shutdown-server">Shutdown Server</a>
+        <a href="/restart-server">Restart Server</a>
+      </div>
+    </div>
+  </div>
+</div>
+<body>
+
+<h1>Admin Panel</h1>
+
+<a class="btn" href="/admin/create">Create User</a>
+<a class="btn-secondary" href="/">Back</a>
+
+<table class="table">
+    <tr>
+        <th>Username</th>
+        <th>Admin</th>
+        <th>Base Dir</th>
+        <th>Terminal</th>
+        <th>Restart</th>
+        <th>Info</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for u in users %}
+    <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ "Yes" if u.is_admin else "No" }}</td>
+        <td>{{ u.base_dir }}</td>
+        <td>{{ "Yes" if u.can_terminal else "No" }}</td>
+        <td>{{ "Yes" if u.can_restart else "No" }}</td>
+        <td>{{ "Yes" if u.can_info else "No" }}</td>
+
+        <td>
+            <!-- EDIT BUTTON -->
+            <a class="btn" href="/admin/edit/{{ u.id }}">Edit</a>
+
+            <!-- DELETE BUTTON (όχι για admin) -->
+            {% if u.username != "admin" %}
+            <form method="post" action="/admin/delete/{{ u.id }}" style="display:inline;">
+                <button class="btn-danger">Delete</button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Explorer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/home" class="home-icon" title="Home">🏠</a>
+  </div>
+
+  <div class="topbar-center">
+    <span class="server-title">Raspberry Pi Server</span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="dropdown user-menu">
+      <button class="top-btn">User ▾</button>
+      <div class="dropdown-content">
+        <a href="/logout">Logout</a>
+        <a href="/switch-user">Switch User</a>
+      </div>
+    </div>
+
+    <div class="dropdown power-menu">
+      <button class="top-btn">⚙ Power ▾</button>
+      <div class="dropdown-content">
+        <a href="/shutdown-pi">Shutdown Raspberry Pi</a>
+        <a href="/restart-pi">Restart Raspberry Pi</a>
+        <a href="/shutdown-server">Shutdown Server</a>
+        <a href="/restart-server">Restart Server</a>
+      </div>
+    </div>
+  </div>
+</div>
+<body class="dark">
+
+<div class="explorer-window">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3>Quick Access</h3>
+        <ul>
+            <li><a href="{{ url_for('files_shortcut', name='home') }}">🏠 Home</a></li>
+            <li><a href="{{ url_for('files_shortcut', name='desktop') }}">🖥 Desktop</a></li>
+            <li><a href="{{ url_for('files_shortcut', name='downloads') }}">⬇ Downloads</a></li>
+            <li><a href="{{ url_for('files_shortcut', name='documents') }}">📄 Documents</a></li>
+            <li><a href="{{ url_for('files_shortcut', name='pictures') }}">🖼 Pictures</a></li>
+            <li><a href="{{ url_for('files_shortcut', name='music') }}">🎵 Music</a></li>
+            <li><a href="{{ url_for('files_shortcut', name='videos') }}">🎬 Videos</a></li>
+            <li><a href="{{ url_for('files_shortcut', name='thispc') }}">💾 This PC</a></li>
+        </ul>
+    </div>
+
+    <!-- Main area -->
+    <div class="main-area">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="btn small" onclick="document.getElementById('new-folder').scrollIntoView()">New</button>
+            <button class="btn small" onclick="location.reload()">Refresh</button>
+            <a href="/" class="btn small">Home</a>
+        </div>
+
+        <!-- Path bar -->
+        <div class="pathbar">
+            <span>📁 {{ current_path }}</span>
+        </div>
+
+        <!-- Grid view -->
+        <div class="grid">
+            {% for e in entries %}
+                <div class="grid-item">
+
+                    <!-- Icon + name -->
+                    {% if e.is_dir %}
+                        <a href="{{ url_for('browse', relpath=(relpath + '/' + e.name).strip('/')) }}">
+                            <div class="icon">📁</div>
+                            <div class="name">{{ e.name }}</div>
+                        </a>
+                    {% else %}
+                        {% set ext = e.name.split('.')[-1].lower() %}
+                        <div class="icon">
+                            {% if ext in ['txt', 'log', 'cfg', 'ini'] %}
+                                📄
+                            {% elif ext in ['png', 'jpg', 'jpeg', 'gif', 'bmp'] %}
+                                🖼
+                            {% elif ext in ['zip', 'tar', 'gz', 'rar', '7z'] %}
+                                📦
+                            {% elif ext in ['pdf'] %}
+                                📘
+                            {% elif ext in ['mp3', 'wav', 'flac'] %}
+                                🎵
+                            {% elif ext in ['mp4', 'mkv', 'avi', 'mov'] %}
+                                🎬
+                            {% elif ext in ['sh', 'bash', 'py', 'js', 'html', 'css', 'cpp', 'c', 'bas'] %}
+                                💻
+                            {% else %}
+                                📄
+                            {% endif %}
+                        </div>
+                        <div class="name">{{ e.name }}</div>
+                    {% endif %}
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="actions">
+                        {% if not e.is_dir %}
+                        <a class="download"
+                           href="{{ url_for('download', relpath=(relpath + '/' + e.name).strip('/')) }}"></a>
+                        {% endif %}
+                        <button class="rename" onclick="toggleRename('{{ loop.index }}')"></button>
+                        <a class="delete"
+                           href="{{ url_for('delete', relpath=(relpath + '/' + e.name).strip('/')) }}"
+                           onclick="return confirm('Delete this item?');"></a>
+                    </div>
+
+                    <!-- RENAME FORM -->
+                    <form id="rename-{{ loop.index }}" class="rename-form"
+                          action="{{ url_for('rename', relpath=(relpath + '/' + e.name).strip('/')) }}"
+                          method="post">
+                        <input type="text" name="new_name" placeholder="New name..." required>
+                        <button type="submit">OK</button>
+                    </form>
+
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Bottom actions -->
+        <div class="bottom-actions" id="new-folder">
+
+            <form action="{{ url_for('mkdir', relpath=relpath) }}" method="post">
+                <input type="text" name="folder_name" placeholder="New folder name" required>
+                <button class="btn" type="submit">Create Folder</button>
+            </form>
+
+            <form action="{{ url_for('upload', relpath=relpath) }}" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <button class="btn" type="submit">Upload File</button>
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- RENAME TOGGLE SCRIPT -->
+<script>
+function toggleRename(id) {
+    const form = document.getElementById('rename-' + id);
+    form.classList.toggle('active');
+}
+</script>
+
+</body>
+</html>

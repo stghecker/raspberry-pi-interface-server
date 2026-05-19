@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/home" class="home-icon" title="Home">🏠</a>
+  </div>
+
+  <div class="topbar-center">
+    <span class="server-title">Raspberry Pi Server</span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="dropdown user-menu">
+      <button class="top-btn">User ▾</button>
+      <div class="dropdown-content">
+        <a href="/logout">Logout</a>
+        <a href="/switch-user">Switch User</a>
+      </div>
+    </div>
+
+    <div class="dropdown power-menu">
+      <button class="top-btn">⚙ Power ▾</button>
+      <div class="dropdown-content">
+        <a href="/shutdown-pi">Shutdown Raspberry Pi</a>
+        <a href="/restart-pi">Restart Raspberry Pi</a>
+        <a href="/shutdown-server">Shutdown Server</a>
+        <a href="/restart-server">Restart Server</a>
+      </div>
+    </div>
+  </div>
+</div>
+<body>
+
+<h1>Edit Profile</h1>
+
+<form method="post">
+    <label>Username</label>
+    <input type="text" name="username" value="{{ user.username }}" required>
+
+    <label>New Password</label>
+    <input type="text" name="password" placeholder="Leave empty to keep old">
+
+    <button class="btn">Save</button>
+</form>
+
+<a class="btn-secondary" href="/">Back</a>
+
+</body>
+</html>
