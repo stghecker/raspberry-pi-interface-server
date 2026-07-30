@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Profile · Pi Dashboard{% endblock %}
+{% block heading %}Profile & Settings{% endblock %}
+{% block content %}
+
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start">
+  <!-- Account card -->
+  <div class="card">
+    <div class="card-head"><span class="card-title">Account</span></div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+      <div class="avatar" style="width:52px;height:52px;font-size:20px;border-radius:14px" id="pfAvatar">—</div>
+      <div>
+        <div style="font-size:18px;font-weight:700" id="pfName">{{ user.display_name or user.username }}</div>
+        <div style="font-size:13px;color:var(--text-faint);font-family:var(--mono)" id="pfUser">{{ user.username }}</div>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <span class="badge {{ 'badge-admin' if user.is_admin else 'badge-user' }}">{{ 'Administrator' if user.is_admin else 'Standard user' }}</span>
+    </div>
+  </div>
+
+  <!-- Display name -->
+  <div class="card">
+    <div class="card-head"><span class="card-title">Display name</span></div>
+    <div class="field" style="margin-bottom:14px">
+      <input class="input" id="nameInput" value="{{ user.display_name or '' }}" placeholder="Your name">
+    </div>
+    <button class="btn btn-primary" id="saveName">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+      Save name
+    </button>
+  </div>
+
+  <!-- Change password -->
+  <div class="card">
+    <div class="card-head"><span class="card-title">Change password</span></div>
+    <div class="field">
+      <label for="curPwd">Current password</label>
+      <input class="input" id="curPwd" type="password" autocomplete="current-password">
+    </div>
+    <div class="field">
+      <label for="newPwd">New password</label>
+      <input class="input" id="newPwd" type="password" autocomplete="new-password">
+      <div class="hint">At least 6 characters.</div>
+    </div>
+    <button class="btn btn-primary" id="savePwd">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Update password
+    </button>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const user = {
+    id: {{ user.id }},
+    username: {{ user.username | tojson }},
+    display_name: {{ user.display_name | tojson }},
+    is_admin: {{ 'true' if user.is_admin else 'false' }}
+  };
+
+  function setAvatar(name) {
+    $('pfAvatar').textContent = (name || user.username).slice(0, 1).toUpperCase();
+  }
+  setAvatar(user.display_name);
+
+  $('saveName').onclick = async () => {
+    const name = $('nameInput').value.trim();
+    try {
+      await api('/api/profile/name', { method: 'POST', body: { display_name: name } });
+      $('pfName').textContent = name || user.username;
+      setAvatar(name);
+      toast('Display name updated', 'ok');
+    } catch (e) { toast(e.message, 'err'); }
+  };
+
+  $('savePwd').onclick = async () => {
+    const cur = $('curPwd').value, next = $('newPwd').value;
+    if (!cur || !next) { toast('Fill in both fields', 'err'); return; }
+    if (next.length < 6) { toast('New password must be at least 6 characters', 'err'); return; }
+    try {
+      await api('/api/profile/password', { method: 'POST', body: { current_password: cur, new_password: next } });
+      $('curPwd').value = ''; $('newPwd').value = '';
+      toast('Password updated', 'ok');
+    } catch (e) { toast(e.message, 'err'); }
+  };
+})();
+</script>
+{% endblock %}

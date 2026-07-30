@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}System · Pi Dashboard{% endblock %}
+{% block heading %}System Overview{% endblock %}
+{% block content %}
+
+<div class="stat-grid" id="statGrid" style="margin-bottom:18px">
+  <div class="card">
+    <div class="card-head"><span class="card-title">CPU Usage</span></div>
+    <div class="card-value" id="cpuVal">—</div>
+    <div class="card-sub" id="cpuSub">— cores</div>
+    <div class="gauge"><div class="gauge-fill" id="cpuGauge" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Memory</span></div>
+    <div class="card-value" id="memVal">—</div>
+    <div class="card-sub" id="memSub">— / —</div>
+    <div class="gauge"><div class="gauge-fill" id="memGauge" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">CPU Temperature</span></div>
+    <div class="card-value" id="tempVal">—</div>
+    <div class="card-sub" id="tempSub">thermal zone</div>
+    <div class="gauge"><div class="gauge-fill" id="tempGauge" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Disk Usage</span></div>
+    <div class="card-value" id="diskVal">—</div>
+    <div class="card-sub" id="diskSub">— / —</div>
+    <div class="gauge"><div class="gauge-fill" id="diskGauge" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="chart-grid" style="margin-bottom:18px">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">CPU Load · last 60s</span>
+      <span class="mini-stat"><span class="label">now</span><span class="val" id="cpuNow">—</span></span>
+    </div>
+    <div class="chart-wrap"><canvas id="cpuChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Memory · last 60s</span>
+      <span class="mini-stat"><span class="label">now</span><span class="val" id="memNow">—</span></span>
+    </div>
+    <div class="chart-wrap"><canvas id="memChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Temperature · last 60s</span>
+      <span class="mini-stat"><span class="label">now</span><span class="val" id="tempNow">—</span></span>
+    </div>
+    <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Network · last 60s</span>
+      <span class="mini-stat"><span class="label">↑</span><span class="val" id="netUp">—</span><span class="label">↓</span><span class="val" id="netDown">—</span></span>
+    </div>
+    <div class="chart-wrap"><canvas id="netChart"></canvas></div>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="card">
+    <div class="card-head"><span class="card-title">Uptime</span></div>
+    <div class="card-value" id="upVal" style="font-size:22px">—</div>
+    <div class="card-sub" id="bootSub">booted —</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Load Average</span></div>
+    <div class="card-value" id="loadVal" style="font-size:22px">—</div>
+    <div class="card-sub">1 · 5 · 15 min</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Processes</span></div>
+    <div class="card-value" id="procVal">—</div>
+    <div class="card-sub">running</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">Swap</span></div>
+    <div class="card-value" id="swapVal">—</div>
+    <div class="card-sub" id="swapSub">— / —</div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
