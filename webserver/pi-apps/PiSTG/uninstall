@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Pi-Apps uninstall script for PiSTG
+# Removes the app, virtual environment, and desktop shortcut.
+# Preserves the user database so settings/accounts survive a reinstall.
+
+set -e
+
+INSTALL_DIR="$HOME/PiSTG"
+
+# Back up the database before removing everything.
+if [ -f "$INSTALL_DIR/pistg.db" ]; then
+  echo "Backing up database to $HOME/pistg_backup.db …"
+  cp "$INSTALL_DIR/pistg.db" "$HOME/pistg_backup.db"
+  echo "Your user accounts and settings have been saved to ~/pistg_backup.db."
+  echo "If you reinstall, the database will be restored automatically."
+fi
+
+echo "Removing PiSTG…"
+rm -rf "$INSTALL_DIR" || error "Failed to remove $INSTALL_DIR"
+
+# Remove desktop shortcuts.
+sudo rm -f /usr/share/applications/pistg.desktop 2>/dev/null || true
+rm -f "$HOME/.local/share/applications/pistg.desktop" 2>/dev/null || true
+
+echo ""
+echo "PiSTG has been uninstalled."
+if [ -f "$HOME/pistg_backup.db" ]; then
+  echo "Your database backup is at: $HOME/pistg_backup.db"
+fi
+echo ""

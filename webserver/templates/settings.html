@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Settings · Pi Dashboard{% endblock %}
+{% block heading %}Settings{% endblock %}
+{% block content %}
+
+<!-- Theme section -->
+<div class="card" style="margin-bottom:18px">
+  <div class="card-head">
+    <span class="card-title">Theme & Appearance</span>
+    <button class="btn btn-ghost btn-sm" id="resetThemeBtn">Reset to default</button>
+  </div>
+  <div class="muted" style="margin-bottom:16px">Pick a preset or customize the accent color. Your choice is saved to your profile.</div>
+
+  <div class="theme-grid" id="themeGrid"></div>
+
+  <div class="theme-custom">
+    <div class="field" style="margin:0">
+      <label>Accent color</label>
+      <div class="accent-row">
+        <input type="color" class="accent-picker" id="accentPicker" value="#2dd4bf">
+        <input class="input" id="accentHex" value="#2dd4bf" style="max-width:140px;font-family:var(--mono)">
+        <button class="btn btn-primary btn-sm" id="applyAccent">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications section -->
+<div class="card">
+  <div class="card-head">
+    <span class="card-title">System Alerts</span>
+    <label class="switch">
+      <input type="checkbox" id="notifMaster" checked>
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+    </label>
+  </div>
+  <div class="muted" style="margin-bottom:16px">Get alerted when system metrics exceed your thresholds. Alerts appear in the bell icon in the top bar.</div>
+
+  <div class="alert-grid" id="alertGrid"></div>
+
+  <div style="margin-top:16px">
+    <button class="btn btn-ghost btn-sm" id="resetAlertsBtn">Restore default thresholds</button>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}
