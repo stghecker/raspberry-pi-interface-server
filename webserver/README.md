@@ -29,6 +29,7 @@ A clean, modern web dashboard for Raspberry Pi — access it from any device on 
 This project includes a start script that handles everything for you — it creates an isolated Python environment (so you never hit the "externally-managed-environment" error) and installs the dependencies automatically.
 
 ```bash
+cd webserver
 chmod +x start.sh
 ./start.sh
 ```
